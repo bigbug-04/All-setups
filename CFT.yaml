@@ -1,0 +1,7 @@
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+       BucketName: "demo.aws.vaibhav.example.com"
+       versioningConfiguration:
+        Status: Enabled
