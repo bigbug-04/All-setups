@@ -1,0 +1,97 @@
+# provider plugin block
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+# provider block
+
+
+
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "" 
+  secret_key = ""
+}
+
+# resources block
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/20"
+
+  tags = {
+    Name = "MainVPC"
+  }
+}
+
+# Create an Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "MainInternetGateway"
+  }
+}
+
+# Create a Route Table
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "MainRouteTable"
+  }
+}
+
+# Create Subnets
+resource "aws_subnet" "public_subnet_1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.0/22"  # 1024 IPs
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet1"
+  }
+}
+
+resource "aws_subnet" "public_subnet_2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.4.0/22"  # 1024 IPs
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet2"
+  }
+}
+
+resource "aws_subnet" "public_subnet_3" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.8.0/22"  # 1024 IPs
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet3"
+  }
+}
+
+# Associate the subnets with the route table
+resource "aws_route_table_association" "subnet_1" {
+  subnet_id      = aws_subnet.public_subnet_1.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet_2" {
+  subnet_id      = aws_subnet.public_subnet_2.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet_3" {
+  subnet_id      = aws_subnet.public_subnet_3.id
+  route_table_id = aws_route_table.main.id
+}
